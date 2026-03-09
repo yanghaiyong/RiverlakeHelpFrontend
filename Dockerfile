@@ -18,13 +18,17 @@ RUN rm -f /etc/nginx/conf.d/default.conf && \
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-USER nginx
-
 EXPOSE 80
+
+ENV API_BASE_URL=/api
+ENV APP_TITLE=RiverLake\ Help
+ENV APP_VERSION=1.0.0
 
 LABEL maintainer="RiverLake" \
       description="RiverLake Help Frontend" \
       version="1.0.0" \
       app="riverlake-help-frontend"
 
-CMD ["nginx", "-g", "daemon off;"]
+USER nginx
+
+CMD ["sh", "-c", "envsubst < /etc/nginx/conf.d/default.conf > /tmp/default.conf && mv /tmp/default.conf /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
