@@ -27,5 +27,8 @@ variables:
   SERVICE_TYPE: "ClusterIP"
   IMAGE_PULL_POLICY: "Always"
   
-  # Ingress 配置
-  INGRESS_HOST: "www.riverlake.com"
+  # Ingress/TLS 配置（通配符域名）
+  INGRESS_HOST: "test.com"
+  TLS_COMMON_NAME: "*.test.com"
+  TLS_DNS_NAME: "*.test.com"
+  TLS_BASE_DOMAIN: "test.com"

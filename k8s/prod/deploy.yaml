@@ -1,3 +1,24 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ${APP_NAME}-tls
+  namespace: ${K8S_NAMESPACE}
+spec:
+  secretName: ${APP_NAME}-tls-secret
+  privateKey:
+    algorithm: RSA
+    rotationPolicy: Always
+    size: 4096
+  issuerRef:
+    name: ${CERT_ISSUER:-vault-issuer}
+    kind: ClusterIssuer
+  commonName: "${TLS_COMMON_NAME}"
+  dnsNames:
+    - "${TLS_DNS_NAME}"
+    - "${TLS_BASE_DOMAIN}"
+  duration: ${TLS_DURATION:-2160h}
+  renewBefore: ${TLS_RENEW_BEFORE:-360h}
+---
 apiVersion: v1
 kind: Secret
 metadata:
