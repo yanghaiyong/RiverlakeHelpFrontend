@@ -102,7 +102,7 @@ spec:
           startupProbe:
             httpGet:
               path: /health
-              port: ${CONTAINER_PORT}
+              port: 80
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 30
@@ -110,7 +110,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: ${CONTAINER_PORT}
+              port: 80
             initialDelaySeconds: ${LIVENESS_INITIAL_DELAY}
             periodSeconds: 10
             failureThreshold: 3
@@ -118,7 +118,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: ${CONTAINER_PORT}
+              port: 80
             initialDelaySeconds: ${READINESS_INITIAL_DELAY}
             periodSeconds: 5
             failureThreshold: 3
