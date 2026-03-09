@@ -12,9 +12,13 @@ FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN rm -f /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/default.conf && \
+    mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp /var/cache/nginx/fastcgi /var/cache/nginx/uwsgi /var/cache/nginx/scgi && \
+    chown -R nginx:nginx /var/cache/nginx
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+USER nginx
 
 EXPOSE 80
 
