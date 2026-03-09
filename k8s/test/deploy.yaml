@@ -25,8 +25,8 @@ metadata:
 spec:
   type: ${SERVICE_TYPE}
   ports:
-    - port: ${SERVICE_PORT}
-      targetPort: ${CONTAINER_PORT}
+    - port: 80
+      targetPort: 80
       protocol: TCP
       name: http
   selector:
@@ -77,7 +77,7 @@ spec:
           image: ${CI_REGISTRY_FULL_IMAGE}
           imagePullPolicy: ${IMAGE_PULL_POLICY}
           ports:
-            - containerPort: ${CONTAINER_PORT}
+            - containerPort: 80
               name: http
               protocol: TCP
           envFrom:
@@ -196,15 +196,13 @@ spec:
             backend:
               service:
                 name: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
-                port:
-                  number: ${BACKEND_SERVICE_PORT:-8080}
+                port: 8080
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: ${APP_NAME}
-                port:
-                  number: ${SERVICE_PORT}
+                port: 80
   tls:
     - hosts:
         - "*.${INGRESS_HOST}"
