@@ -27,8 +27,8 @@ spec:
   ports:
     - port: ${SERVICE_PORT}
       targetPort: ${CONTAINER_PORT}
-      protocol: TCP
-      name: http
+      protocol: ${PORT_PROTOCOL}
+      name: ${PORT_NAME}
   selector:
     app: ${APP_NAME}
 ---
@@ -67,19 +67,19 @@ spec:
                     app: ${APP_NAME}
                 topologyKey: kubernetes.io/hostname
       nodeSelector:
-        "kubernetes.io/hostname": k8s-node-1
+        "kubernetes.io/hostname": ${NODE_SELECTOR}
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
-        fsGroup: 101
+        runAsUser: ${RUN_AS_USER}
+        fsGroup: ${RUN_AS_USER}
       containers:
         - name: ${APP_NAME}
           image: ${CI_REGISTRY_FULL_IMAGE}
           imagePullPolicy: ${IMAGE_PULL_POLICY}
           ports:
             - containerPort: ${CONTAINER_PORT}
-              name: http
-              protocol: TCP
+              name: ${PORT_NAME}
+              protocol: ${PORT_PROTOCOL}
           envFrom:
             - configMapRef:
                 name: ${APP_NAME}
@@ -101,7 +101,7 @@ spec:
               cpu: ${CPU_LIMIT}
           startupProbe:
             httpGet:
-              path: /health
+              path: ${HEALTH_CHECK_PATH}
               port: ${CONTAINER_PORT}
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -109,7 +109,7 @@ spec:
             successThreshold: 1
           livenessProbe:
             httpGet:
-              path: /health
+              path: ${HEALTH_CHECK_PATH}
               port: ${CONTAINER_PORT}
             initialDelaySeconds: ${LIVENESS_INITIAL_DELAY}
             periodSeconds: 10
@@ -117,7 +117,7 @@ spec:
             successThreshold: 1
           readinessProbe:
             httpGet:
-              path: /health
+              path: ${HEALTH_CHECK_PATH}
               port: ${CONTAINER_PORT}
             initialDelaySeconds: ${READINESS_INITIAL_DELAY}
             periodSeconds: 5
