@@ -48,8 +48,8 @@ spec:
   ports:
     - port: ${SERVICE_PORT}
       targetPort: ${CONTAINER_PORT}
-      protocol: ${PORT_PROTOCOL}
-      name: ${PORT_NAME}
+      protocol: TCP
+      name: http
   selector:
     app: ${APP_NAME}
 ---
@@ -88,19 +88,19 @@ spec:
                     app: ${APP_NAME}
                 topologyKey: kubernetes.io/hostname
       nodeSelector:
-        "kubernetes.io/hostname": ${NODE_SELECTOR}
+        "kubernetes.io/hostname": k8s-node-1
       securityContext:
         runAsNonRoot: true
-        runAsUser: ${RUN_AS_USER}
-        fsGroup: ${RUN_AS_USER}
+        runAsUser: 101
+        fsGroup: 101
       containers:
         - name: ${APP_NAME}
           image: ${CI_REGISTRY_FULL_IMAGE}
           imagePullPolicy: ${IMAGE_PULL_POLICY}
           ports:
             - containerPort: ${CONTAINER_PORT}
-              name: ${PORT_NAME}
-              protocol: ${PORT_PROTOCOL}
+              name: http
+              protocol: TCP
           envFrom:
             - configMapRef:
                 name: ${APP_NAME}
@@ -122,7 +122,7 @@ spec:
               cpu: ${CPU_LIMIT}
           startupProbe:
             httpGet:
-              path: ${HEALTH_CHECK_PATH}
+              path: /health
               port: ${CONTAINER_PORT}
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -130,7 +130,7 @@ spec:
             successThreshold: 1
           livenessProbe:
             httpGet:
-              path: ${HEALTH_CHECK_PATH}
+              path: /health
               port: ${CONTAINER_PORT}
             initialDelaySeconds: ${LIVENESS_INITIAL_DELAY}
             periodSeconds: 10
@@ -138,7 +138,7 @@ spec:
             successThreshold: 1
           readinessProbe:
             httpGet:
-              path: ${HEALTH_CHECK_PATH}
+              path: /health
               port: ${CONTAINER_PORT}
             initialDelaySeconds: ${READINESS_INITIAL_DELAY}
             periodSeconds: 5
@@ -196,8 +196,8 @@ spec:
   ports:
     - port: ${BACKEND_SERVICE_PORT}
       targetPort: ${BACKEND_CONTAINER_PORT}
-      protocol: ${PORT_PROTOCOL}
-      name: ${PORT_NAME}
+      protocol: TCP
+      name: http
   selector:
     app: ${BACKEND_SERVICE_NAME}
 ---
@@ -209,26 +209,26 @@ metadata:
   labels:
     app: ${APP_NAME}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: ${INGRESS_PROXY_BODY_SIZE}
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: ${INGRESS_PROXY_CONNECT_TIMEOUT}
-    nginx.ingress.kubernetes.io/proxy-read-timeout: ${INGRESS_PROXY_READ_TIMEOUT}
-    nginx.ingress.kubernetes.io/proxy-send-timeout: ${INGRESS_PROXY_SEND_TIMEOUT}
-    nginx.ingress.kubernetes.io/use-regex: ${INGRESS_USE_REGEX}
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
-  ingressClassName: ${INGRESS_CLASS}
+  ingressClassName: nginx
   rules:
-    - host: "${INGRESS_HOST}"
+    - host: "*.test.com"
       http:
         paths:
-          - path: ${INGRESS_API_PATH}
-            pathType: ${INGRESS_API_PATH_TYPE}
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: ${BACKEND_SERVICE_NAME}
                 port:
                   number: ${BACKEND_SERVICE_PORT}
-          - path: ${INGRESS_WEB_PATH}
-            pathType: ${INGRESS_WEB_PATH_TYPE}
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: ${APP_NAME}
@@ -236,5 +236,5 @@ spec:
                   number: ${SERVICE_PORT}
   tls:
     - hosts:
-        - "${INGRESS_HOST}"
+        - "*.test.com"
       secretName: ${APP_NAME}-tls-secret
