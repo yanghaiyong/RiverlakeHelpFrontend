@@ -8,6 +8,38 @@ const app = createApp(App)
 
 registerPlugins(app)
 
+function applyTheme(config) {
+  if (config.themeColor) {
+    document.documentElement.style.setProperty('--primary-color', config.themeColor)
+    
+    const style = document.createElement('style')
+    style.textContent = `
+      :root {
+        --primary-color: ${config.themeColor};
+      }
+      .app-title {
+        color: ${config.themeColor};
+      }
+    `
+    document.head.appendChild(style)
+  }
+  
+  if (config.logo) {
+    const logoImg = document.querySelector('.app-logo')
+    if (logoImg) {
+      logoImg.src = config.logo
+    }
+  }
+  
+  if (config.appTitle) {
+    document.title = config.appTitle
+    const titleEl = document.querySelector('.app-title')
+    if (titleEl) {
+      titleEl.textContent = config.appTitle
+    }
+  }
+}
+
 async function initApp() {
   try {
     const response = await fetch('/api/tenant-config')
@@ -15,12 +47,15 @@ async function initApp() {
     if (response.ok) {
       const config = await response.json()
       window.__APP_CONFIG__ = config
+      
+      applyTheme(config)
     } else {
       console.warn('Failed to fetch tenant config, using defaults')
       window.__APP_CONFIG__ = {
         API_BASE_URL: '/api',
         APP_TITLE: 'RiverLake Help',
-        APP_VERSION: '1.0.0'
+        APP_VERSION: '1.0.0',
+        THEME_COLOR: '#1890ff'
       }
     }
   } catch (error) {
@@ -28,7 +63,8 @@ async function initApp() {
     window.__APP_CONFIG__ = {
       API_BASE_URL: '/api',
       APP_TITLE: 'RiverLake Help',
-      APP_VERSION: '1.0.0'
+      APP_VERSION: '1.0.0',
+      THEME_COLOR: '#1890ff'
     }
   }
 

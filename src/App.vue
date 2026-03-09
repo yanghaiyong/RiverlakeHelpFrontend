@@ -1,8 +1,9 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>RiverLake Help</h1>
+      <h1 class="app-title">RiverLake Help</h1>
       <p class="subtitle">Spring Boot + Vue 3 + Capacitor</p>
+      <p v-if="tenantName" class="tenant-badge">{{ tenantName }}</p>
     </header>
     
     <main class="content">
@@ -27,6 +28,7 @@
     
     <footer class="footer">
       <p>Platform: {{ platform }}</p>
+      <p v-if="tenantId" class="tenant-id">Tenant ID: {{ tenantId }}</p>
     </footer>
   </div>
 </template>
@@ -39,11 +41,48 @@ const loading = ref(false)
 const apiResult = ref(null)
 const error = ref(null)
 const platform = ref('')
+const tenantId = ref('')
+const tenantName = ref('')
 
 onMounted(() => {
   platform.value = Capacitor.getPlatform()
   console.log('Current platform:', platform.value)
+  
+  if (window.__APP_CONFIG__) {
+    tenantId.value = window.__APP_CONFIG__.tenantId || ''
+    tenantName.value = window.__APP_CONFIG__.tenantName || ''
+    
+    if (window.__APP_CONFIG__.themeColor) {
+      document.documentElement.style.setProperty('--primary-color', window.__APP_CONFIG__.themeColor)
+      updateThemeColors(window.__APP_CONFIG__.themeColor)
+    }
+  }
 })
+
+function updateThemeColors(color) {
+  const style = document.createElement('style')
+  style.textContent = `
+    .header {
+      background: linear-gradient(135deg, ${color} 0%, ${adjustColor(color, -30)} 100%) !important;
+    }
+    button {
+      background: linear-gradient(135deg, ${color} 0%, ${adjustColor(color, -30)} 100%) !important;
+    }
+    .app-title {
+      color: ${color} !important;
+    }
+  `
+  document.head.appendChild(style)
+}
+
+function adjustColor(color, amount) {
+  const hex = color.replace('#', '')
+  const num = parseInt(hex, 16)
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount))
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount))
+  const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount))
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
+}
 
 const testApi = async () => {
   loading.value = true
@@ -51,7 +90,8 @@ const testApi = async () => {
   apiResult.value = null
   
   try {
-    const response = await fetch('/api/hello')
+    const apiBaseUrl = window.__APP_CONFIG__?.API_BASE_URL || '/api'
+    const response = await fetch(`${apiBaseUrl}/hello`)
     const data = await response.json()
     apiResult.value = JSON.stringify(data, null, 2)
   } catch (err) {
@@ -68,6 +108,10 @@ const testApi = async () => {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #1890ff;
 }
 
 body {
@@ -90,7 +134,7 @@ body {
 }
 
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%);
   color: white;
   padding: 30px 20px;
   text-align: center;
@@ -101,9 +145,22 @@ body {
   margin-bottom: 8px;
 }
 
+.app-title {
+  color: var(--primary-color) !important;
+}
+
 .subtitle {
   font-size: 14px;
   opacity: 0.9;
+}
+
+.tenant-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  font-size: 12px;
 }
 
 .content {
@@ -131,7 +188,7 @@ body {
 }
 
 button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%);
   color: white;
   border: none;
   padding: 12px 32px;
@@ -191,5 +248,11 @@ pre {
   text-align: center;
   color: #666;
   font-size: 14px;
+}
+
+.tenant-id {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
 }
 </style>
