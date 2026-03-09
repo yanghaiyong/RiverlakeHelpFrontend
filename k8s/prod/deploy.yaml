@@ -179,7 +179,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: ${INGRESS_HOST}
+    - host: "*.${INGRESS_HOST}"
       http:
         paths:
           - path: /
@@ -191,5 +191,5 @@ spec:
                   number: ${SERVICE_PORT}
   tls:
     - hosts:
-        - ${INGRESS_HOST}
-      secretName: ${APP_NAME}-tls
+        - "*.${INGRESS_HOST}"
+      secretName: ${APP_NAME}-tls-secret
