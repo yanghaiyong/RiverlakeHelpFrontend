@@ -25,14 +25,26 @@ variables:
   BACKEND_SERVICE_PORT: "8080"
   BACKEND_CONTAINER_PORT: "8080"
   
+  # Ingress 配置
+  INGRESS_HOST: "*.test.com"
+  INGRESS_CLASS: "nginx"
+  INGRESS_PROXY_BODY_SIZE: "50m"
+  INGRESS_PROXY_CONNECT_TIMEOUT: "30"
+  INGRESS_PROXY_READ_TIMEOUT: "60"
+  INGRESS_PROXY_SEND_TIMEOUT: "60"
+  INGRESS_USE_REGEX: "true"
+  INGRESS_API_PATH: "/api(/|$)(.*)"
+  INGRESS_API_PATH_TYPE: "ImplementationSpecific"
+  INGRESS_WEB_PATH: "/"
+  INGRESS_WEB_PATH_TYPE: "Prefix"
+  
   # 资源配置（覆盖模板默认值，减少 HPA 触发）
   MEMORY_REQUEST: "128Mi"
   MEMORY_LIMIT: "256Mi"
   CPU_REQUEST: "500m"
   CPU_LIMIT: "1000m"
   
-  # Ingress/TLS 配置
-  INGRESS_HOST: "test.com"
+  # TLS 配置
   TLS_COMMON_NAME: "*.test.com"
   TLS_DNS_NAME: "*.test.com"
   TLS_BASE_DOMAIN: "test.com"

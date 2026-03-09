@@ -180,30 +180,32 @@ metadata:
   labels:
     app: ${APP_NAME}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: ${INGRESS_PROXY_BODY_SIZE}
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: ${INGRESS_PROXY_CONNECT_TIMEOUT}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: ${INGRESS_PROXY_READ_TIMEOUT}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: ${INGRESS_PROXY_SEND_TIMEOUT}
+    nginx.ingress.kubernetes.io/use-regex: ${INGRESS_USE_REGEX}
 spec:
-  ingressClassName: nginx
+  ingressClassName: ${INGRESS_CLASS}
   rules:
-    - host: "*.${INGRESS_HOST}"
+    - host: "${INGRESS_HOST}"
       http:
         paths:
-          - path: /api(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: ${INGRESS_API_PATH}
+            pathType: ${INGRESS_API_PATH_TYPE}
             backend:
               service:
                 name: ${BACKEND_SERVICE_NAME}
-                port: 8080
-          - path: /
-            pathType: Prefix
+                port:
+                  number: ${BACKEND_SERVICE_PORT}
+          - path: ${INGRESS_WEB_PATH}
+            pathType: ${INGRESS_WEB_PATH_TYPE}
             backend:
               service:
                 name: ${APP_NAME}
-                port: 80
+                port:
+                  number: ${SERVICE_PORT}
   tls:
     - hosts:
-        - "*.${INGRESS_HOST}"
+        - "${INGRESS_HOST}"
       secretName: ${APP_NAME}-tls-secret
