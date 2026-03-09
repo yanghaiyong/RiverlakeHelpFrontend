@@ -187,10 +187,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+  name: ${BACKEND_SERVICE_NAME}
   namespace: ${K8S_NAMESPACE}
   labels:
-    app: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+    app: ${BACKEND_SERVICE_NAME}
 spec:
   type: ClusterIP
   ports:
@@ -199,7 +199,7 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+    app: ${BACKEND_SERVICE_NAME}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -224,7 +224,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+                name: ${BACKEND_SERVICE_NAME}
                 port: 8080
           - path: /
             pathType: Prefix
