@@ -194,8 +194,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: ${BACKEND_SERVICE_PORT:-8080}
-      targetPort: ${BACKEND_CONTAINER_PORT:-8080}
+    - port: 8080
+      targetPort: 8080
       protocol: TCP
       name: http
   selector:
