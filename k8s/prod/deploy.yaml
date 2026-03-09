@@ -184,6 +184,23 @@ spec:
           value: 100
           periodSeconds: 15
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+spec:
+  type: ClusterIP
+  ports:
+    - port: ${BACKEND_SERVICE_PORT:-8080}
+      targetPort: ${BACKEND_CONTAINER_PORT:-8080}
+      protocol: TCP
+      name: http
+  selector:
+    app: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -203,6 +220,13 @@ spec:
     - host: "*.${INGRESS_HOST}"
       http:
         paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ${BACKEND_SERVICE_NAME:-riverlake-help-backend}
+                port:
+                  number: ${BACKEND_SERVICE_PORT:-8080}
           - path: /
             pathType: Prefix
             backend:
