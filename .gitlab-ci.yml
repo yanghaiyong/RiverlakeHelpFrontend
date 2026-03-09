@@ -5,7 +5,7 @@ include:
 
 variables:
   # 构建配置
-  NPM_BUILD_SHELL: "npm install && npm run capacitor:build"
+  NPM_BUILD_SHELL: 'npm install && npm run capacitor:build'
   
   # Docker 配置
   CI_REGISTRY: "k8s-node-1:5000"
