@@ -46,8 +46,8 @@ metadata:
 spec:
   type: ${SERVICE_TYPE}
   ports:
-    - port: 80
-      targetPort: 80
+    - port: ${SERVICE_PORT}
+      targetPort: ${CONTAINER_PORT}
       protocol: TCP
       name: http
   selector:
@@ -98,7 +98,7 @@ spec:
           image: ${CI_REGISTRY_FULL_IMAGE}
           imagePullPolicy: ${IMAGE_PULL_POLICY}
           ports:
-            - containerPort: 80
+            - containerPort: ${CONTAINER_PORT}
               name: http
               protocol: TCP
           envFrom:
@@ -123,7 +123,7 @@ spec:
           startupProbe:
             httpGet:
               path: /health
-              port: 80
+              port: ${CONTAINER_PORT}
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 30
@@ -131,7 +131,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: ${CONTAINER_PORT}
             initialDelaySeconds: ${LIVENESS_INITIAL_DELAY}
             periodSeconds: 10
             failureThreshold: 3
@@ -139,7 +139,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: ${CONTAINER_PORT}
             initialDelaySeconds: ${READINESS_INITIAL_DELAY}
             periodSeconds: 5
             failureThreshold: 3

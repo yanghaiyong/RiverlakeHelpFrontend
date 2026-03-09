@@ -12,6 +12,13 @@ variables:
   
   # K8s 部署配置
   APP_NAME: "riverlake-help-frontend"
+  SERVICE_PORT: "80"
+  CONTAINER_PORT: "80"
+  
+  # 后端服务配置
+  BACKEND_SERVICE_NAME: "riverlake-help-backend"
+  BACKEND_SERVICE_PORT: "8080"
+  BACKEND_CONTAINER_PORT: "8080"
   
   # 资源配置（覆盖模板默认值，减少 HPA 触发）
   MEMORY_REQUEST: "128Mi"
