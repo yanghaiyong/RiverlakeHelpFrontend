@@ -10,15 +10,18 @@ registerPlugins(app)
 
 async function initApp() {
   try {
-    const response = await fetch('/config.js')
-    const configText = await response.text()
+    const response = await fetch('/api/tenant-config')
     
-    const config = eval(configText)
-    
-    window.__APP_CONFIG__ = config
-    
-    if (import.meta.env.DEV) {
-      console.log('App Config:', window.__APP_CONFIG__)
+    if (response.ok) {
+      const config = await response.json()
+      window.__APP_CONFIG__ = config
+    } else {
+      console.warn('Failed to fetch tenant config, using defaults')
+      window.__APP_CONFIG__ = {
+        API_BASE_URL: '/api',
+        APP_TITLE: 'RiverLake Help',
+        APP_VERSION: '1.0.0'
+      }
     }
   } catch (error) {
     console.warn('Failed to load config, using defaults:', error)
@@ -30,6 +33,7 @@ async function initApp() {
   }
 
   if (import.meta.env.DEV) {
+    console.log('App Config:', window.__APP_CONFIG__)
     console.log('Running in development mode')
     console.log('Capacitor platform:', Capacitor.getPlatform())
   }

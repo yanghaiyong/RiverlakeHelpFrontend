@@ -20,10 +20,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-ENV API_BASE_URL=/api
-ENV APP_TITLE=RiverLake\ Help
-ENV APP_VERSION=1.0.0
-
 LABEL maintainer="RiverLake" \
       description="RiverLake Help Frontend" \
       version="1.0.0" \
@@ -31,4 +27,4 @@ LABEL maintainer="RiverLake" \
 
 USER nginx
 
-CMD ["sh", "-c", "envsubst < /etc/nginx/conf.d/default.conf > /tmp/default.conf && mv /tmp/default.conf /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]
