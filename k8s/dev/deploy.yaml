@@ -99,6 +99,14 @@ spec:
             limits:
               memory: ${MEMORY_LIMIT}
               cpu: ${CPU_LIMIT}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: ${CONTAINER_PORT}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+            successThreshold: 1
           livenessProbe:
             httpGet:
               path: /health
@@ -158,10 +166,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${BACKEND_SERVICE_NAME}
+  name: riverlake-help-backend
   namespace: ${K8S_NAMESPACE}
   labels:
-    app: ${BACKEND_SERVICE_NAME}
+    app: riverlake-help-backend
 spec:
   type: ClusterIP
   ports:
@@ -170,7 +178,7 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: ${BACKEND_SERVICE_NAME}
+    app: riverlake-help-backend
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -195,16 +203,16 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: ${BACKEND_SERVICE_NAME}
+                name: riverlake-help-backend
                 port:
-                  number: ${BACKEND_SERVICE_PORT}
+                  number: 8080
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: ${APP_NAME}
                 port:
-                  number: ${SERVICE_PORT}
+                  number: 80
   tls:
     - hosts:
         - "*.test.com"
