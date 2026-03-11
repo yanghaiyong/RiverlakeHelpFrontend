@@ -105,10 +105,175 @@ kubectl apply -f k8s/dev/riverlake-help-frontend.yaml
 | CI_REGISTRY_PASSWORD | 仓库密码 |
 | KUBECONFIG_CONTENT | Base64 编码的 kubeconfig |
 
-## API 配置
+## 环境配置
 
-- 开发环境: Vite 代理 (http://localhost:8080)
-- 生产环境: 通过环境变量 VITE_API_BASE_URL 配置
+### 环境文件说明
+
+对应 K8S 标准环境：`dev` → `test` → `pre-prod` → `prod`
+
+| 文件 | K8S环境 | 用途 | 说明 |
+|------|---------|------|------|
+| `.env.dev` | dev | 开发环境 | 本地开发，连接本地后端 |
+| `.env.test` | test | 测试环境 | 连接测试服务器 |
+| `.env.pre-prod` | pre-prod | 预发布环境 | 连接预生产服务器 |
+| `.env.prod` | prod | 生产环境 | 线上生产环境 |
+
+### VITE_API_TARGET 配置说明
+
+`VITE_API_TARGET` 用于 Vite 开发服务器的 API 代理。开发模式下请求 `/api/*` 会被代理到此地址。
+
+#### 不同后端地址配置方式：
+
+```bash
+# 本地后端
+VITE_API_TARGET=http://localhost:8080
+
+# 局域网后端
+VITE_API_TARGET=http://192.168.1.100:8080
+
+# 线上后端
+VITE_API_TARGET=https://api.production.com
+
+# K8S 集群内部 - 同 namespace
+VITE_API_TARGET=http://backend-service:8080
+
+# K8S 集群内部 - 不同 namespace
+VITE_API_TARGET=http://backend-service.namespace:8080
+
+# K8S NodePort 暴露
+VITE_API_TARGET=http://<节点IP>:30080
+
+# K8S Ingress 域名
+VITE_API_TARGET=https://backend.ingress.domain.com
+```
+
+### 切换不同环境的后端
+
+修改对应环境文件中的 `VITE_API_TARGET` 即可。例如连接 K8S test 环境后端：
+
+```bash
+# 编辑 .env.test
+VITE_API_TARGET=http://k8s-test-backend:8080
+```
+
+## 测试方法
+
+### Web 环境测试
+
+#### 1. 开发环境 (dev)
+
+```bash
+npm install
+npm run dev
+```
+
+前端运行在 http://localhost:5173，API 代理到 `.env.dev` 中的 `VITE_API_TARGET`（默认 `localhost:8080`）
+
+#### 2. 测试环境 (test)
+
+```bash
+npm run dev:test
+```
+
+#### 3. 预发布环境 (pre-prod)
+
+```bash
+npm run dev:pre-prod
+```
+
+#### 4. 生产构建测试
+
+```bash
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+### 移动端测试
+
+#### Android 测试
+
+```bash
+# 首次配置
+npx cap add android
+
+# 开发模式（热重载）
+npm run capacitor:dev
+
+# 构建 APK
+npm run capacitor:build
+npx cap sync android
+npx cap open android
+```
+
+#### iOS 测试（仅 Mac）
+
+```bash
+# 首次配置
+npx cap add ios
+
+# 开发模式
+npm run capacitor:dev
+
+# 构建
+npm run capacitor:build
+npx cap sync ios
+cd ios/App && pod install
+npx cap open ios
+```
+
+### Docker 测试
+
+```bash
+# 构建镜像
+docker build -t riverlake-help-frontend:latest .
+
+# 运行容器（开发模式连接本地后端）
+docker run -p 80:80 riverlake-help-frontend:latest
+
+# 运行容器并指定后端地址
+docker run -p 80:80 -e VITE_API_TARGET=http://host.docker.internal:8080 riverlake-help-frontend:latest
+```
+
+### Kubernetes 测试
+
+部署到 K8S 开发环境：
+
+```bash
+kubectl apply -f k8s/dev/riverlake-help-frontend.yaml
+```
+
+如需修改后端地址，编辑 k8s 配置文件中的环境变量。
+
+## 常用命令
+
+```bash
+# 安装依赖
+npm install
+
+# 开发环境 (dev) - 连接本地后端
+npm run dev
+
+# 测试环境 (test)
+npm run dev:test
+
+# 预发布环境 (pre-prod)
+npm run dev:pre-prod
+
+# 生产构建
+npm run build
+
+# 按环境构建
+npm run build:dev
+npm run build:test
+npm run build:pre-prod
+npm run build:prod
+
+# 预览构建结果
+npm run preview
+```
 
 ## 许可证
 
