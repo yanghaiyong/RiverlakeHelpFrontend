@@ -48,3 +48,26 @@ variables:
   TLS_COMMON_NAME: "*.test.com"
   TLS_DNS_NAME: "*.test.com"
   TLS_BASE_DOMAIN: "test.com"
+
+# 覆盖部署步骤，添加 envsubst 变量替换
+deploy:pre-prod:
+  extends: .deploy
+  before_script:
+    - |
+      # 替换 k8s YAML 文件中的变量
+      export K8S_FILE="k8s/pre-prod/deploy.yaml"
+      envsubst < $K8S_FILE > $K8S_FILE.tmp && mv $K8S_FILE.tmp $K8S_FILE
+      cat $K8S_FILE
+  script:
+    - kubectl apply -f $K8S_FILE --record
+
+deploy:prod:
+  extends: .deploy
+  before_script:
+    - |
+      # 替换 k8s YAML 文件中的变量
+      export K8S_FILE="k8s/prod/deploy.yaml"
+      envsubst < $K8S_FILE > $K8S_FILE.tmp && mv $K8S_FILE.tmp $K8S_FILE
+      cat $K8S_FILE
+  script:
+    - kubectl apply -f $K8S_FILE --record
